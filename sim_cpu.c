@@ -1,9 +1,9 @@
 #include <stdio.h> 
 #include <stdlib.h>
 
-char mem[154], ir, ro0, ro1, e, l, g;
-int mbr;
-short int mar, imm, pc, reg[4];
+char mem[154], ir = 0, ro0 = 0, ro1=0, e=0 , l=0, g=0;
+int mbr = 0;
+short int mar = 0, imm = 0, pc = 0, reg[4] = {0,0,0,0};
 
 
 int printMem(){// mostra toda a memoria em hexadecimal
@@ -29,7 +29,7 @@ int memEdit(){ // preenche os valores na memoria
        if (adress == 0xf01 && content == 0xf01 ){
          break;
        }
-        mem[adress] = content;
+        mem[adress] = abs(content);
     } while (adress != 0Xf01 && content != 0xF01);
     printf("\nedicao de memoria finalizada");
     return 0;
@@ -44,22 +44,21 @@ int sub(){
 
 }
 
+void busca(){ // busca instrucoes para o mbr
+    //pc = 0 no primeiro ciclo; 0,1,2;
+    mbr = (mem[pc]<<16)|(abs(mem[pc+1]<<8)|abs(mem[pc+2])); // concatena 3 bytes
+    mbr = mbr&0x00ffffff; //transforma em 0 os bits sobrando a esquerda;
+    decode();
+    
+}
 void decode(){
-    int opcode;
+    int opcode=  0;
     // mbr = (mem[0]<<8)|abs(mem[1]); // concatena dois bytes em mbr;
-         mbr = (mem[0]<<16)|(abs(mem[1]<<8)|abs(mem[2])); // concatena 3 bytes
-//     if (mem[0] < 16)
-//     { // pensando em mascara para recuperar instrução do mbr
-//         //codigo 0    8     8     0
-// //               0000 0000 0000 0000 0000 1000 1000 0000
-// //                  0 0    0    0     1    8    0   0 
-//         int mask =0x000000f1; // mascara para add;
-//         opcode = mbr >>11; //num&mask;
-//         opcode = opcode&mask; 
-//         // printf("\n %0x", mbr);
-//     }
+    // mbr = (mem[pc]<<16)|(abs(mem[pc+1]<<8)|abs(mem[pc+2])); // concatena 3 bytes
+    // mbr = mbr&0x00ffffff;  
         opcode = mbr >>19; //11; //num&mask;
-        printf("\n%x",opcode);
+        printf("\nmem  %x %x %x \n",mem[0],mem[1],mem[2]);
+        printf("\n%x \nopcode: %x ",mbr,opcode);
     // deprecated (eu acho)
     //  if(opcode == 0b00001){
     //     int mask =0x000000f1; // mascara para add;
@@ -73,20 +72,93 @@ void decode(){
     //     printf("\n opcode de sub \n");
     // }
     int mask;
-    switch (opcode) // descobre qual a instrução a ser chamada;
-    {
+    switch (opcode){ // descobre qual instrução foi lida;
     case 0b00001:
         mask =0x000000f1; // mascara para add;
         opcode = opcode&mask;
         printf("\n opcode de add \n");
+        ir = opcode;
+        printf("%x",ir);
         break;
+
     case 0b00010:
         mask =0x000000f8; // mascara para subtracao;
         opcode = opcode&mask;
         printf("\n opcode de sub \n");
+        ir = opcode;
         break;
-    
+    case 0b00011:
+        mask;
+        printf("\n opcode de mul\n");
+        ir = opcode;
+        break;
+    case 0b00100:
+        printf("\n opcode de div\n");
+        ir = opcode;
+        break;
+    case 0b00110:
+        printf("\n opcode de movrr \n");
+        ir = opcode;
+        break;
+    case 0b00111:
+        printf("\n opcode de and \n");
+        ir = opcode;
+        break;
+    case 0b01000:
+        printf ("\n opcode de or");
+        ir = opcode;
+        break;
+    case 0b01001:
+        printf("\n xor \n");
+        ir = opcode;
+        break;
+    case 0b01010:
+        printf("\n not \n");
+        ir = opcode;
+        break;
+    case 0b01011:
+        printf("\n je \n");
+        ir = opcode;
+        break;
+    case 0b01101:
+        printf("\n jl \n");
+        ir = opcode;
+        break;
+    case 0b01110:
+        printf("\n jle \n");
+        ir = opcode;
+        break;
+    case 0b01111:
+        printf("\n jg \n");
+        ir = opcode;
+        break;
+    case 0b10000:
+        printf("\n jge \n");
+        ir = opcode;
+        break;
+    case 0b10001:
+        printf("\n jmp \n");
+        ir = opcode;
+        break;
+    case 0b10010:
+        mask = 0x0000001f;
+        printf("\n ld \n");
+        ir = opcode;
+        break;
+    case 0b10011:
+        printf("\n st \n");
+        ir = opcode;
+        break;
+    case 0b10100:
+        printf("\n movi \n");
+        ir = opcode;
+        break;
+    case 0b10101:
+        printf("\n addi \n");
+        ir = opcode;
+        break;
     default:
+        printf("\ni dunno");
         break;
     }
    // printf(" \n %0x",mem[1]);
@@ -94,19 +166,10 @@ void decode(){
 
 
 int main(){
-    // int num;
-    // //printf("%d \n",num);
-    // scanf("%x",&num);
-    // printf("%d",num);
+    
      memEdit();
       printMem();
+     busca();
       decode();
-//     int num = 0b00000000000000000000100010000000;
-//     int mask =0x000000f1; 
-//     num = num >>11; //num&mask;
-//     num = num&mask; 
-//    printf("%0d",num);
-//    if(num == 0b00001)
-//     printf("funciona");
-//    else printf("nao funciona");
+
 }
